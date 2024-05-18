@@ -10,7 +10,7 @@ class DiseaseItem(BaseModel):
     chemical_control: str
     trigger: str
     preventive_measures: str
-    url: Optional[str] = None  # Assuming URL is optional, remove Optional if it's mandatory
+    url: Optional[str] = None
 
 
 class Question(BaseModel):
