@@ -5,7 +5,11 @@ Accept: application/json
 
 ###
 
-GET http://127.0.0.1:8000/hello/User
+GET http://127.0.0.1:8000/query?question='what do you kknow about iran?'
 Accept: application/json
 
+
+
+GET http://127.0.0.1:8000/query
+Accept: application/json
 ###
