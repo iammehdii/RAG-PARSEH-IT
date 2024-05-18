@@ -3,8 +3,11 @@ from langchain.vectorstores import FAISS
 from langchain.docstore.document import Document
 from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
+from langchain.vectorstores import Qdrant
+from qdrant_client import QdrantClient
 
 load_dotenv('.env')
+CLOUD = True
 
 question_templates = {
     "crops": "Which crops are affected by {disease_name}?",
@@ -40,7 +43,29 @@ def format_input(items_in_dict,question_templates=question_templates):
         qa_pairs.append(doc)
     return qa_pairs
 
-db = FAISS.load_local('db/plantix_faiss', OpenAIEmbeddings(), allow_dangerous_deserialization=True)
+
+def connect_to_qdrant():
+    client = QdrantClient(
+    )
+    return Qdrant(
+        client=client, collection_name="agriculture",
+        embeddings=OpenAIEmbeddings(),
+        distance_strategy='COSINE'
+    )
+
+
+
+def save_to_qdrant(qa_pairs):
+    qdrant = Qdrant.from_documents(
+        qa_pairs,
+        OpenAIEmbeddings(),
+        prefer_grpc=False,
+        collection_name="agriculture",
+    )
+if CLOUD:
+    db = connect_to_qdrant()
+else:
+    db = FAISS.load_local('db/plantix_faiss', OpenAIEmbeddings(), allow_dangerous_deserialization=True)
 
 
 if __name__ == "__main__":
@@ -64,6 +89,8 @@ if __name__ == "__main__":
             qa_pairs.append(doc)
 
     embedding = OpenAIEmbeddings()
-
-    vs = FAISS.from_documents(qa_pairs, embedding)
-    vs.save_local('db/plantix_faiss')
+    if CLOUD:
+        save_to_qdrant(qa_pairs)
+    else:
+        vs = FAISS.from_documents(qa_pairs, embedding)
+        vs.save_local('db/plantix_faiss')
