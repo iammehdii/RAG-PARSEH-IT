@@ -1,29 +1,20 @@
 from fastapi import FastAPI
-from services import chain
+from services import chain, format_input, db
+from models import DiseaseItem
 
 app = FastAPI()
 
 
-
-
-
-
-@app.get("/")
-async def root():
-    prompt = _get_prompt()
-    return {"message": prompt}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
-
-
 @app.get("/query")
 def query(question: str):
-    resp = chain.invoke({'question':question})
+    resp = chain.invoke({'question': question})
 
-    return {"message": resp}
+    return {"response": resp}
 
-@app.post("/update")
-def add_to_db(name: str):
+@app.post("/add")
+def add_to_db(items: DiseaseItem):
+    docs = format_input(items.dict)
+    db.add_documents(docs)
+    db.save_local('db/plantix_faiss')
+    return {"response": 'done'}
+
