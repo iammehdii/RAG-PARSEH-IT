@@ -12,9 +12,10 @@ def query(question: str):
     return {"response": resp}
 
 @app.post("/add")
-def add_to_db(items: DiseaseItem):
+def add_to_db(items: DiseaseItem, local=True):
     docs = format_input(items.dict)
     db.add_documents(docs)
-    db.save_local('db/plantix_faiss')
+    if local:
+        db.save_local('db/plantix_faiss')
     return {"response": 'done'}
 
