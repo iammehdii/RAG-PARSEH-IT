@@ -17,6 +17,13 @@ question_templates = {
     "preventive_measures": "What preventive measures can be taken against {disease_name}?"
 }
 
+
+def load_local_db(path='db/plantix_faiss'):
+    """Load local vector store"""
+    load_dotenv('.env')
+    return FAISS.load_local(path, OpenAIEmbeddings(), allow_dangerous_deserialization=True)
+
+
 if __name__ == "__main__":
     load_dotenv('.env')  #
 
